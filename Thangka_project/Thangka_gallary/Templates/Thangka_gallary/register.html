@@ -1,0 +1,50 @@
+{% extends 'thangka_gallary/base.html' %}
+{% load static %}
+{% block title %}Register - Thangka Gallery{% endblock %}
+
+{% block content %}
+<section class="wrap section form-section">
+  <h2 class="section-title">Create Account</h2>
+
+  <form method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {% if form.errors %}
+      <ul class="messages">
+        {% for field, errs in form.errors.items %}
+          {% for err in errs %}
+            <li class="msg error">{{ err }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <div class="form-card">
+      <label for="id_username">Username</label>
+      <input id="id_username" name="username" type="text" value="{{ request.POST.username|default:'' }}">
+
+      <label for="id_email">Email</label>
+      <input id="id_email" name="email" type="email" value="{{ request.POST.email|default:'' }}">
+
+      <label for="id_password1">Password</label>
+      <input id="id_password1" name="password1" type="password">
+
+      <label for="id_password2">Confirm Password</label>
+      <input id="id_password2" name="password2" type="password">
+
+      {# optional artist avatar/name (bio removed) #}
+      {% if artist_form %}
+        <label for="id_name">Display name</label>
+        <input id="id_name" name="name" type="text" value="{{ request.POST.name|default:'' }}">
+
+        <label for="id_avatar">Avatar</label>
+        <input id="id_avatar" name="avatar" type="file">
+      {% endif %}
+
+      <button class="btn" type="submit">Register</button>
+    </div>
+  </form>
+
+  <p class="muted">Already registered? <a href="/login/">Login</a></p>
+</section>
+{% endblock %}

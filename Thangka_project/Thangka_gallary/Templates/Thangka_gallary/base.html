@@ -1,0 +1,86 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}Thangka Gallery{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'thangka_gallary/css/style.css' %}">
+</head>
+<body>
+  <!-- Top decorative border -->
+  <div class="decorative-border top"></div>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/">✨ THANGKA</a>
+      <button id="navToggle" class="nav-toggle" aria-label="toggle menu">☰</button>
+      <nav id="mainNav" class="main-nav">
+        <a href="/">Home</a>
+        <a href="/gallery/">Explore</a>
+        <a href="/about_thangka/">About</a>
+        <a href="/contact/">Contact</a>
+        {% if user.is_authenticated %}
+          <a href="/notifications/" class="nav-cta">🔔 Notifications</a>
+          <a href="/artist/" class="nav-cta">Dashboard</a>
+          <a href="/logout/" class="nav-cta muted">Logout</a>
+        {% else %}
+          <a href="/login/" class="nav-cta">Login</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap messages-wrap">
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="msg {{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+
+  <!-- Page transition wrapper -->
+  <main class="page-transition">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="decorative-border footer-top"></div>
+    <p>© 2025 Thangka Gallery — Bhutanese Cultural Heritage</p>
+    <div class="decorative-border bottom"></div>
+  </footer>
+
+  <script>
+    (function(){
+      const btn = document.getElementById('navToggle');
+      const nav = document.getElementById('mainNav');
+      if(btn) btn.addEventListener('click', function(){ nav.classList.toggle('open'); });
+
+      document.addEventListener('DOMContentLoaded', function(){
+        const page = document.querySelector('.page-transition');
+        if(page) page.classList.add('fade-in');
+      });
+
+      document.addEventListener('click', function(e){
+        const link = e.target.closest('a');
+        if(link && link.href && !link.href.includes('#') && link.origin === window.location.origin){
+          const page = document.querySelector('.page-transition');
+          if(page){
+            page.classList.remove('fade-in');
+            page.classList.add('fade-out');
+            const loader = document.createElement('div');
+            loader.className = 'page-loader';
+            document.body.appendChild(loader);
+            setTimeout(function(){
+              window.location.href = link.href;
+            }, 300);
+            e.preventDefault();
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

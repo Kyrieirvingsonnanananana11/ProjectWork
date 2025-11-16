@@ -1,0 +1,40 @@
+{% extends 'Thangka_gallary/base.html' %}
+{% load static %}
+{% block title %}Login - Thangka Gallery{% endblock %}
+
+{% block content %}
+<section class="wrap section form-section bhutanese-page">
+  <div class="page-header">
+    <h2 class="section-title">Welcome Back</h2>
+  </div>
+
+  <form method="post" action="" class="form-card bhutanese-form" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% if form.errors %}
+      <ul class="messages">
+        {% for field, errs in form.errors.items %}
+          {% for err in errs %}
+            <li class="msg error">{{ err }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <label for="id_username">Username</label>
+    <input id="id_username" name="username" type="text" value="{{ request.POST.username|default:'' }}">
+
+    <label for="id_password">Password</label>
+    <input id="id_password" name="password" type="password">
+
+    <input type="hidden" name="next" value="{{ next|default:'' }}">
+
+    <div style="display:flex;gap:10px;align-items:center;margin-top:12px;">
+      <button class="btn" type="submit">Login</button>
+      <if not></if><a href="/register/" class="btn btn-outline">Sign up</a>
+      <a href="/password_reset/" class="muted" style="margin-left:auto;">Forgot password?</a>
+    </div>
+  </form>
+
+  <p class="muted u-center" style="margin-top:24px; text-align:center;">Or continue browsing <a href="/gallery/">Gallery</a></p>
+</section>
+{% endblock %}

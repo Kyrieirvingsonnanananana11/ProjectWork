@@ -1,0 +1,47 @@
+{% extends 'thangka_gallary/base.html' %}
+{% load static %}
+{% block title %}{{ art.title }} - Thangka Gallery{% endblock %}
+
+{% block content %}
+<section class="wrap section detail-section">
+  <div class="detail-grid">
+    <div class="detail-image">
+      <img src="{{ art.image.url }}" alt="{{ art.title }}">
+    </div>
+    <div class="detail-info">
+      <h1>{{ art.title }}</h1>
+      <p class="muted">By {% if art.artist %}{{ art.artist.name }}{% else %}Unknown{% endif %} • {{ art.created_at|date:"M d, Y" }}</p>
+
+      <div class="meta-list">
+        <p><strong>Category:</strong> {% if art.category %}{{ art.category.name }}{% else %}—{% endif %}</p>
+        {% if art.price %}
+          <p><strong>Price:</strong> Nu. {{ art.price }}</p>
+        {% endif %}
+      </div>
+
+      <div class="desc">
+        {{ art.description|linebreaks }}
+      </div>
+
+      <div class="detail-actions">
+        <a href="/gallery/" class="btn-outline">Back to gallery</a>
+        <a href="/contact/" class="btn">Enquire</a>
+      </div>
+
+      <hr>
+      <h3>Related artworks</h3>
+      <div class="related-row">
+        {% for rel in related %}
+          <a class="related-thumb" href="/artwork/{{ rel.id }}/">
+            <img src="{{ rel.image.url }}" alt="{{ rel.title }}">
+            <small>{{ rel.title }}</small>
+          </a>
+        {% endfor %}
+        {% if related|length == 0 %}
+          <p class="muted">No related artworks yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

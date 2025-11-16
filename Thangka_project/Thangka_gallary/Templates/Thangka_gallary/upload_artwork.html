@@ -1,0 +1,24 @@
+{% extends 'Thangka_gallary/base.html' %}
+{% load static %}
+{% block title %}Upload Artwork - Thangka Gallery{% endblock %}
+
+{% block content %}
+<section class="wrap section form-section">
+  <h2 class="section-title">Upload Artwork</h2>
+
+  <form method="post" enctype="multipart/form-data" action="">
+    {% csrf_token %}
+    
+    <!-- Artwork fields -->
+    {{ form.as_p }}
+
+    <!-- Multiple images input -->
+    <label for="id_images">Upload Images</label>
+    <input type="file" name="images" id="id_images" multiple>
+
+    <button class="btn" type="submit">Upload</button>
+  </form>
+
+  <p class="muted">Make sure images are clear and descriptions include the art's title, medium, and year.</p>
+</section>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'Thangka_gallary/base.html' %}
+{% load static %}
+{% block title %}Home - Thangka Gallery{% endblock %}
+
+{% block content %}
+<section class="hero bhutanese-hero-home">
+  <div class="hero-accent left">༺</div>
+  <div class="hero-content">
+    <h1>Discover Bhutanese Thangka Art</h1>
+    <p>Explore traditional sacred paintings from master artists. Support cultural heritage.</p>
+    <a href="/gallery/" class="btn">Start Exploring</a>
+  </div>
+  <div class="hero-accent right">༻</div>
+</section>
+
+<div class="decorative-divider"></div>
+
+<section class="wrap section bhutanese-page">
+  <div class="page-header">
+    <div class="header-accent left">✦</div>
+    <h2 class="section-title">Featured Works</h2>
+    <div class="header-accent right">✦</div>
+  </div>
+  <div class="gallery-grid">
+    {% for artwork in featured %}
+      <article class="card">
+        {% with img=artwork.images.all|first %}
+          {% if img %}<img loading="lazy" src="{{ img.image.url }}" alt="{{ artwork.title }}">{% endif %}
+        {% endwith %}
+        <div class="card-body">
+          <h3>{{ artwork.title }}</h3>
+          <p>{{ artwork.artist.name|default:"Unknown Artist" }}</p>
+          <a href="{% url 'artwork_detail' artwork.id %}" class="btn" style="width:100%; text-align:center; margin-top:8px;">View</a>
+        </div>
+      </article>
+    {% empty %}
+      <p class="u-center u-muted">No artworks yet. Check back soon!</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'thangka_gallary/base.html' %}
+{% load static %}
+{% block title %}Team - Thangka Gallery{% endblock %}
+
+{% block content %}
+<section class="wrap section">
+  <h2 class="section-title">Our Team</h2>
+
+  <div class="grid team-grid">
+    <div class="team-card">
+      <img src="{% static 'thangka_gallary/images/team1.jpg' %}" alt="Sonam">
+      <h4>Sonam Phuntsho</h4>
+      <p class="muted">Team leader / Frontend</p>
+    </div>
+    <div class="team-card">
+      <img src="{% static 'thangka_gallary/images/team2.jpg' %}" alt="Birkha">
+      <h4>Birkha Maya Rai</h4>
+      <p class="muted">Designer / Content</p>
+    </div>
+    <div class="team-card">
+      <img src="{% static 'thangka_gallary/images/team3.jpg' %}" alt="Chimi">
+      <h4>Chimi Wangmo</h4>
+      <p class="muted">Backend / DB</p>
+    </div>
+    <div class="team-card">
+      <img src="{% static 'thangka_gallary/images/team4.jpg' %}" alt="Deki">
+      <h4>Deki Tshomo</h4>
+      <p class="muted">Research / QA</p>
+    </div>
+    <div class="team-card">
+      <img src="{% static 'thangka_gallary/images/team5.jpg' %}" alt="Dema">
+      <h4>Dema Lhamo</h4>
+      <p class="muted">Documentation</p>
+    </div>
+  </div>
+
+  <div class="team-notes">
+    <h3>Reflection</h3>
+    <p>We built this project to showcase cultural heritage and to learn web development best practices — MVC, responsive design, and teamwork.</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'Thangka_gallary/base.html' %}
+{% load static %}
+{% block title %}Notifications - Thangka Gallery{% endblock %}
+
+{% block content %}
+<section class="notifications-section bhutanese-page">
+  <div class="wrap section">
+    <div class="page-header">
+      <div class="header-accent left">🔔</div>
+      <h2 class="section-title">What's New</h2>
+      <div class="header-accent right">🔔</div>
+    </div>
+
+    <div class="notifications-controls">
+      <p class="muted">You have <strong>{{ notifications|length }}</strong> updates</p>
+      {% if notifications %}
+        <button class="btn btn-outline" onclick="clearAll()">Clear All</button>
+      {% endif %}
+    </div>
+
+    {% if notifications %}
+      <div class="notifications-list">
+        {% for notif in notifications %}
+          <article class="notification-card" data-id="{{ notif.id }}">
+            <div class="notif-icon">
+              {% if notif.notification_type == 'like' %}
+                ❤️
+              {% elif notif.notification_type == 'comment' %}
+                💬
+              {% elif notif.notification_type == 'follow' %}
+                👤
+              {% elif notif.notification_type == 'bookmark' %}
+                🔖
+              {% elif notif.notification_type == 'message' %}
+                ✉️
+              {% elif notif.notification_type == 'feature' %}
+                ⭐
+              {% else %}
+                📢
+              {% endif %}
+            </div>
+
+            <div class="notif-content">
+              <div class="notif-header">
+                <h3>{{ notif.get_notification_type_display }}</h3>
+                <span class="notif-time">{{ notif.created_at|timesince }} ago</span>
+              </div>
+              <p class="notif-message">{{ notif.message }}</p>
+              {% if notif.artwork %}
+                <a href="{% url 'artwork_detail' notif.artwork.id %}" class="notif-link">
+                  View Artwork →
+                </a>
+              {% endif %}
+            </div>
+
+            {% if notif.actor %}
+              <div class="notif-actor">
+                <strong>{{ notif.actor.username }}</strong>
+              </div>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="u-center" style="padding:60px 20px;">
+        <p style="font-size:3rem; margin:0;">🎉</p>
+        <p class="muted">No new notifications yet. Check back soon!</p>
+        <a href="/gallery/" class="btn" style="margin-top:16px;">Explore Gallery</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<script>
+  function clearAll(){
+    if(confirm('Clear all notifications?')){
+      fetch("{% url 'clear_notifications' %}", { 
+        method: 'POST',
+        headers: {'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/)||[])[1]}
+      }).then(r => r.json()).then(res => {
+        if(res.status === 'ok') location.reload();
+      });
+    }
+  }
+</script>
+{% endblock %}

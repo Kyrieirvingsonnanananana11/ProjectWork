@@ -1,0 +1,38 @@
+{% extends 'thangka_gallary/base.html' %}
+{% load static %}
+{% block title %}Profile - Thangka Gallery{% endblock %}
+
+{% block content %}
+<section class="wrap section">
+  <h2 class="section-title">Your Profile</h2>
+
+  <div class="grid two-col">
+    <div>
+      <div class="profile-card">
+        <img src="{% if user.artist.avatar %}{{ user.artist.avatar.url }}{% else %}{% static 'thangka_gallary/images/avatar-placeholder.png' %}{% endif %}" alt="avatar">
+        <h3>{{ user.username }}</h3>
+        <p class="muted">{{ user.email }}</p>
+        <p>{{ user.artist.bio }}</p>
+        <a href="/upload/" class="btn">Upload new artwork</a>
+      </div>
+    </div>
+
+    <div>
+      <h3>Your uploads</h3>
+      <div class="grid cards-small">
+        {% for art in user_artworks %}
+          <article class="card">
+            <a href="/artwork/{{ art.id }}/"><img src="{{ art.image.url }}" alt="{{ art.title }}"></a>
+            <div class="card-body">
+              <h4>{{ art.title }}</h4>
+              <p class="muted">{{ art.created_at|date:"M d, Y" }}</p>
+            </div>
+          </article>
+        {% empty %}
+          <p class="muted">You haven't uploaded any artworks yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

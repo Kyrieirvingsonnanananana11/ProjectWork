@@ -1,0 +1,221 @@
+{% extends 'Thangka_gallary/base.html' %}
+{% load static %}
+{% block title %}Artist Dashboard{% endblock %}
+
+{% block content %}
+<section class="wrap section form-section">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+    <h2 class="section-title">Artist Dashboard</h2>
+    <div>
+      <a href="/chat/" class="btn btn-outline">Chat</a>
+      <a href="/logout/" class="btn nav-cta muted">Logout</a>
+    </div>
+  </div>
+
+  <div class="form-card" style="max-width:680px; margin:18px auto 30px;">
+    <h3 style="margin-top:0;">Upload Thangka</h3>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <label>Title</label>
+      <input name="title" value="{{ form.title.value|default:'' }}">
+      <label>Description</label>
+      <textarea name="description">{{ form.description.value|default:'' }}</textarea>
+      <label>Category</label>
+      {{ form.category }}
+      <label>Tags</label>
+      {{ form.tags }}
+      <label>Images (select multiple)</label>
+      <input name="images" type="file" multiple>
+      <div style="margin-top:12px;">
+        <button class="btn" type="submit">Upload</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- floating upload toggle -->
+  <button id="uploadToggle" class="floating-toggle" aria-expanded="false" title="Upload Thangka">＋</button>
+
+  <!-- floating upload panel (collapsed by default) -->
+  <div id="floatingUpload" class="floating-upload" aria-hidden="true">
+    <div class="floating-header">
+      <strong>Upload Thangka</strong>
+      <button id="uploadClose" class="floating-close" aria-label="Close">✕</button>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="floating-form">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <label>Title</label>
+      <input name="title" value="{{ form.title.value|default:'' }}">
+
+      <label>Description</label>
+      <textarea name="description">{{ form.description.value|default:'' }}</textarea>
+
+      <label>Category</label>
+      {{ form.category }}
+
+      <label>Tags</label>
+      {{ form.tags }}
+
+      <label>Images (select multiple)</label>
+      <input name="images" type="file" multiple>
+
+      <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+        <button class="btn" type="submit">Upload</button>
+        <button type="button" id="uploadMinimize" class="btn btn-outline">Minimize</button>
+      </div>
+    </form>
+  </div>
+
+  <h3 class="section-title">Your Thangkas</h3>
+  <div id="masonry" class="cards" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
+    {% for art in user_artworks %}
+      <article class="card" data-art-id="{{ art.id }}">
+        {% with img=art.images.all|first %}
+          {% if img %}<img src="{{ img.image.url }}" alt="{{ art.title }}">{% endif %}
+        {% endwith %}
+        <div class="card-body">
+          <h3>{{ art.title }}</h3>
+          <p class="muted">{{ art.display_artist }}</p>
+
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="btn-like btn-outline" data-id="{{ art.id }}">
+              Like (<span class="likes-count">{{ art.likes_count }}</span>)
+            </button>
+            <button class="btn-bookmark btn-outline" data-id="{{ art.id }}">
+              {% if art.is_bookmarked %}Saved{% else %}Save{% endif %}
+            </button>
+            <a href="{% url 'artwork_detail' art.id %}" class="btn">View</a>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+
+  <h3 class="section-title">Explore</h3>
+  <div id="feed" class="cards" style="column-gap:12px;">
+    {% for art in feed_artworks %}
+      <article class="card" data-art-id="{{ art.id }}">
+        {% with img=art.images.all|first %}
+          {% if img %}<img src="{{ img.image.url }}" alt="{{ art.title }}">{% endif %}
+        {% endwith %}
+        <div class="card-body">
+          <h3>{{ art.title }}</h3>
+          <p class="muted">{{ art.display_artist }}</p>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="btn-like btn-outline" data-id="{{ art.id }}">
+              Like (<span class="likes-count">{{ art.likes_count }}</span>)
+            </button>
+            <button class="btn-bookmark btn-outline" data-id="{{ art.id }}">
+              {% if art.is_bookmarked %}Saved{% else %}Save{% endif %}
+            </button>
+            <a href="{% url 'artwork_detail' art.id %}" class="btn">View</a>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+
+  <div id="loading" style="text-align:center; padding:18px; display:none;">Loading...</div>
+</section>
+
+<script>
+(function(){
+  // Infinite scroll for the feed
+  let page = 2;
+  let loading = false;
+  const feed = document.getElementById('feed');
+  const loadingEl = document.getElementById('loading');
+
+  async function loadMore(){
+    if (loading) return;
+    loading = true;
+    loadingEl.style.display = 'block';
+    try {
+      const res = await fetch(`{% url 'artist_artworks_json' %}?page=${page}`);
+      const data = await res.json();
+      if (data.items && data.items.length){
+        data.items.forEach(item=>{
+          const art = document.createElement('article');
+          art.className = 'card';
+          art.innerHTML = `
+            ${item.thumb ? `<img src="${item.thumb}" alt="${item.title}">` : ''}
+            <div class="card-body"><h3>${item.title}</h3><p class="muted">${item.artist}</p></div>
+          `;
+          feed.appendChild(art);
+        });
+        page++;
+        loading = false;
+        loadingEl.style.display = 'none';
+      } else {
+        // no more
+        loadingEl.innerText = 'No more artworks';
+      }
+    } catch(e){
+      console.error(e);
+      loadingEl.innerText = 'Error loading';
+    }
+  }
+
+  window.addEventListener('scroll', ()=>{
+    if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 800)) {
+      loadMore();
+    }
+  });
+})();
+
+(function(){
+      const toggle = document.getElementById('uploadToggle');
+      const panel = document.getElementById('floatingUpload');
+      const closeBtn = document.getElementById('uploadClose');
+      const minimize = document.getElementById('uploadMinimize');
+
+      function openPanel(){
+        panel.classList.add('open');
+        panel.setAttribute('aria-hidden','false');
+        toggle.setAttribute('aria-expanded','true');
+      }
+      function closePanel(){
+        panel.classList.remove('open');
+        panel.setAttribute('aria-hidden','true');
+        toggle.setAttribute('aria-expanded','false');
+      }
+
+      toggle.addEventListener('click', ()=> {
+        if (panel.classList.contains('open')) closePanel(); else openPanel();
+      });
+      closeBtn.addEventListener('click', closePanel);
+      minimize.addEventListener('click', closePanel);
+    })();
+
+  // AJAX helper
+  function ajaxPost(url, data){
+    return fetch(url, {
+      method: 'POST',
+      headers: {'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/)||[])[1]},
+      body: data
+    }).then(r=>r.json());
+  }
+
+  document.addEventListener('click', function(e){
+    // like
+    if (e.target.matches('.btn-like')){
+      const id = e.target.dataset.id;
+      const span = e.target.querySelector('.likes-count');
+      const fd = new FormData(); fd.append('artwork_id', id);
+      ajaxPost("{% url 'toggle_like' %}", fd).then(res=>{
+        if (res.status==='ok'){ span.innerText = res.likes_count; e.target.classList.toggle('active'); }
+      }).catch(console.error);
+    }
+    // bookmark
+    if (e.target.matches('.btn-bookmark')){
+      const id = e.target.dataset.id;
+      const fd = new FormData(); fd.append('artwork_id', id);
+      ajaxPost("{% url 'toggle_bookmark' %}", fd).then(res=>{
+        if (res.status==='ok'){ e.target.innerText = (res.action==='saved' ? 'Saved' : 'Save'); }
+      }).catch(console.error);
+    }
+  });
+</script>
+{% endblock %}
